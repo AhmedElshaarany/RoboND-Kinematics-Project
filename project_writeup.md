@@ -1,8 +1,4 @@
 ## Project: Kinematics Pick & Place
-### Writeup Template: You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
-
 
 **Steps to complete the project:**  
 
@@ -25,47 +21,40 @@
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  
-
-You're reading it!
-
 ### Kinematic Analysis
 #### 1. Run the forward_kinematics demo and evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot and derive its DH parameters.
 
-Here is an example of how to include an image in your writeup.
+The forward_kinematics demo was used to derive the DH parameters. Below is a screenshot of running the demo.
 
 ![alt text][image1]
 
 #### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
 
+Below is the Modified DH parameters table for the Kuka arm.
+
 Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 --- | --- | --- | --- | ---
-0->1 | 0 | 0 | L1 | qi
-1->2 | - pi/2 | L2 | 0 | -pi/2 + q2
-2->3 | 0 | 0 | 0 | 0
-3->4 |  0 | 0 | 0 | 0
-4->5 | 0 | 0 | 0 | 0
-5->6 | 0 | 0 | 0 | 0
-6->EE | 0 | 0 | 0 | 0
+0->1 | 0 | 0 | 0.75 | q1
+1->2 | - pi/2 | 0.35 | 0 | -pi/2 + q2
+2->3 | 0 | 1.25 | 0 | q3
+3->4 |  - pi/2 | -0.054 | 1.5 | q4
+4->5 | pi/2 | 0 | 0 | q5
+5->6 | -pi/2 | 0 | 0 | q6
+6->EE | 0 | 0 | 0.303 | 0
+
+The individual transformation matrices about each joint and the generalized homogeneous transform between base\_link and gripper\_link using the gripper pose are shown in the IK_server.py script in lines (49-68). 
 
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 
-And here's where you can draw out and show your math for the derivation of your theta angles. 
+The math for deriving the theta angles for the each joint is shown in the IK_server.py script in lines (121-146). Below is a drawing that depicts how theta2 and theta3 were calculated.
 
 ![alt text][image2]
 
 ### Project Implementation
 
-#### 1. Fill in the `IK_server.py` file with properly commented python code for calculating Inverse Kinematics based on previously performed Kinematic Analysis. Your code must guide the robot to successfully complete 8/10 pick and place cycles. Briefly discuss the code you implemented and your results. 
+Below is a screen shot of the Kuka arm on its way to place the object in the bin.
 
-
-Here I'll talk about the code, what techniques I used, what worked and why, where the implementation might fail and how I might improve it if I were going to pursue this project further.  
-
-
-And just for fun, another example image:
 ![alt text][image3]
 
 
