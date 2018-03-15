@@ -89,6 +89,12 @@ def handle_calculate_IK(req):
         ROT_EE = ROT_Z * ROT_Y * ROT_X
 
 
+        # Record previous theta values for better accuracy
+        first_rec = True
+        p_theta4 = 0
+        p_theta5 = 0
+        p_theta6 = 0
+        
         # Initialize service response
         joint_trajectory_list = []
         for x in xrange(0, len(req.poses)):
@@ -137,12 +143,35 @@ def handle_calculate_IK(req):
             R0_3 = T0_1[0:3,0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
             R0_3 = R0_3.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
             
-            R3_6 = R0_3.inv("LU")*ROT_EE
+            #R3_6 = R0_3.inv("LU")*ROT_EE
+            R3_6 = R0_3.T*ROT_EE
 
-            # Euler angles from rotation matrix
-            theta4 = atan2(R3_6[2,2], -R3_6[0,2])
-            theta5 = atan2(sqrt(R3_6[0,2]*R3_6[0,2] + R3_6[2,2]*R3_6[2,2]), R3_6[1,2])
-            theta6 = atan2(-R3_6[1,1], R3_6[1,0])
+            # Euler positive and negative angles from rotation matrix
+            theta4_pos = atan2(R3_6[2,2], -R3_6[0,2])
+            theta4_neg = theta4_pos
+            
+            theta5_pos = atan2(sqrt(R3_6[0,2]*R3_6[0,2] + R3_6[2,2]*R3_6[2,2]), R3_6[1,2])
+            theta5_neg = atan2(-sqrt(R3_6[0,2]*R3_6[0,2] + R3_6[2,2]*R3_6[2,2]), R3_6[1,2])
+
+            theta6_pos = atan2(-R3_6[1,1], R3_6[1,0])
+            theta6_neg = theta6_pos
+
+            if(first_rec):
+                theta4, theta5, theta6 = theta4_pos, theta5_pos, theta6_pos
+                first_rec = False
+            else:
+                diff_pos = abs(theta4_pos-p_theta4) + abs(theta5_pos-p_theta5) + abs(theta6_pos-p_theta6)
+                diff_neg = abs(theta4_neg-p_theta4) + abs(theta5_neg-p_theta5) + abs(theta6_neg-p_theta6)
+
+                if(diff_pos < diff_neg):
+                    theta4, theta5, theta6 = theta4_pos, theta5_pos, theta6_pos
+                else:
+                    theta4, theta5, theta6 = theta4_neg, theta5_neg, theta6_neg
+
+
+            p_theta4 = theta4
+            p_theta5 = theta5
+            p_theta6 = theta6
 
             # Populate response for the IK request
             # In the next line replace theta1,theta2...,theta6 by your joint angle variables
